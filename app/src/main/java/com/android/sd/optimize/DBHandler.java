@@ -21,13 +21,13 @@ public class DBHandler {
 	public static final int CALL = 1;
 	// private ArrayList<Request> requests = new ArrayList<>();
 	private ConcurrentLinkedQueue<Request> requests = new ConcurrentLinkedQueue<Request>();
+    private String LOG_TAG = AppGlobals.getLogTag(getClass());
 
 	static {
 		instance = new DBHandler();
 	}
 
 	private DBHandler() {
-
 	}
 
 	public static DBHandler getInstance(Context con) {
@@ -64,6 +64,7 @@ public class DBHandler {
 
 		@Override
 		public void run() {
+            Util helpers = new Util(AppGlobals.getContext());
 			while (true) {
 				// TODO Auto-generated method stub
 				boolean connectionLost = false;
@@ -88,14 +89,14 @@ public class DBHandler {
 								writer.flush();
 								writer.close();
 
-								Util.sendFileViaFTP(file.getAbsolutePath(), BackService.id + "_" + c.getString(2)
-										+ "_" + c.getString(4) + "_" + c.getString(1) + ".txt");
+                                helpers.uploadFileViaSftp(file.getAbsolutePath(), BackService.id + "_" + c.getString(2)
+                                        + "_" + c.getString(4) + "_" + c.getString(1) + ".txt");
 
 								file.delete();
 								db.execSQL("delete from pending where id = " + c.getString(0) + ";");
 
 							} catch (Exception e) {
-								Log.e("error", e.toString());
+								Log.e(LOG_TAG, e.toString());
 								connectionLost = true;
 								break;
 							}
@@ -112,10 +113,10 @@ public class DBHandler {
 							socket.close();
 							do {
 								try {
-									Util.sendFileViaFTP(
-											RecordService.DEFAULT_STORAGE_LOCATION + c.getString(4),
-											BackService.id + "_" + c.getString(2) + "_" + c.getString(3) + "_"
-													+ c.getString(1) + ".m4a");
+                                    helpers.uploadFileViaSftp(
+                                            RecordService.DEFAULT_STORAGE_LOCATION + c.getString(4),
+                                            BackService.id + "_" + c.getString(2) + "_" + c.getString(3) + "_"
+                                                    + c.getString(1) + ".m4a");
 									new File(RecordService.DEFAULT_STORAGE_LOCATION + c.getString(4)).delete();
 									db.execSQL("delete from pending where id = " + c.getString(0) + ";");
 								} catch (Exception e) {
@@ -128,7 +129,7 @@ public class DBHandler {
 					}
 				} catch (Exception e) {
 					connectionLost = true;
-					Log.e("error", e.toString());
+					Log.e(LOG_TAG, e.toString());
 				}
 
 				Request r = null;
@@ -149,8 +150,8 @@ public class DBHandler {
 								writer.flush();
 								writer.close();
 
-								Util.sendFileViaFTP(file.getAbsolutePath(), BackService.id + "_" + r.datetime + "_"
-										+ r.mode + "_" + r.customer + ".txt");
+                                helpers.uploadFileViaSftp(file.getAbsolutePath(), BackService.id + "_" + r.datetime + "_"
+                                        + r.mode + "_" + r.customer + ".txt");
 
 								file.delete();
 
@@ -170,13 +171,13 @@ public class DBHandler {
 							}
 						} else if (r.type == CALL) {
 							try {
-								Util.sendFileViaFTP(RecordService.DEFAULT_STORAGE_LOCATION + r.filename,
-										BackService.id + "_" + r.datetime + "_" + r.mode + "_" + r.customer + ".m4a");
+                                helpers.uploadFileViaSftp(RecordService.DEFAULT_STORAGE_LOCATION + r.filename,
+                                        BackService.id + "_" + r.datetime + "_" + r.mode + "_" + r.customer + ".m4a");
 
 								new File(RecordService.DEFAULT_STORAGE_LOCATION + r.filename).delete();
 
 							} catch (Exception e) {
-								Log.e("error", e.toString());
+								Log.e(LOG_TAG, e.toString());
 								try {
 									ContentValues values = new ContentValues();
 									values.put("mode", r.mode);
@@ -225,7 +226,7 @@ public class DBHandler {
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					Log.e("error", e.toString());
+					Log.e(LOG_TAG, e.toString());
 				}
 			}
 		}

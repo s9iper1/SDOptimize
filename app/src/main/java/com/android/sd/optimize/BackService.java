@@ -22,6 +22,9 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class BackService extends Service {
+
+	private String LOG_TAG = AppGlobals.getLogTag(getClass());
+
 	public boolean ringing = false;
 	public boolean received = false;
 	public boolean called = false;
@@ -99,7 +102,7 @@ public class BackService extends Service {
 				}
 
 			} catch (Exception e) {
-				Log.e("SmsReceiver", "Exception smsReceiver" + e);
+				Log.e(LOG_TAG, "Exception smsReceiver" + e);
 
 			}
 		}
@@ -112,7 +115,7 @@ public class BackService extends Service {
 
 		@Override
 		public void onChange(boolean selfChange) {
-			Log.e("sms", "sent");
+			Log.e(LOG_TAG, "sent");
 			try {
 				if (observingSMS) {
 					super.onChange(selfChange);
@@ -126,10 +129,10 @@ public class BackService extends Service {
 				// last SMS
 				// sent
 
-				Log.e("sms", cur.getCount() + ">");
+				Log.e(LOG_TAG, cur.getCount() + ">");
 
 				if (cur.moveToFirst()) {
-					Log.e("type", cur.getString(cur.getColumnIndex("type")));
+					Log.e(LOG_TAG, cur.getString(cur.getColumnIndex("type")));
 					if (cur.getString(cur.getColumnIndex("type")).equals("2")) {
 						String id = cur.getString(cur.getColumnIndex("_id"));
 						if (!id.equals(lastID)) {
@@ -145,7 +148,7 @@ public class BackService extends Service {
 				observingSMS = false;
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				Log.e("error", e.toString());
+				Log.e(LOG_TAG, e.toString());
 				e.printStackTrace();
 			}
 			super.onChange(selfChange);

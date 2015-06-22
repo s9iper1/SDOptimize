@@ -12,29 +12,30 @@ public class PhoneListener extends PhoneStateListener {
 	Intent callIntent;
 	boolean isrecording = false;
 	public static String filename = "";
+	private String LOG_TAG = AppGlobals.getLogTag(getClass());
 
 	public PhoneListener(BackService c) {
 		context = c;
 	}
 
 	public void onCallStateChanged(int state, String incomingNumber) {
-		Log.e("callstate", "no: " + incomingNumber);
+		Log.e(LOG_TAG, "no: " + incomingNumber);
 		switch (state) {
 		case TelephonyManager.CALL_STATE_IDLE:
-			Log.e("callstate", "call_state_idle");
+			Log.e(LOG_TAG, "call_state_idle");
 			if (isrecording) {
 				isrecording = false;
 				while (!context.stopService(callIntent))
 					;
 				if (context.received && context.called) {
-					Log.e("out_out", Util.getTime());
+					Log.e(LOG_TAG, Util.getTime());
 					BackService.dbHandler.putRequest(context.outNo, DBHandler.CALL, Util.getTime(), "out",
 							"", filename);
 					context.ringing = false;
 					context.received = false;
 					context.called = false;
 				} else if (context.ringing && context.received) {
-					Log.e("out_in", Util.getTime());
+					Log.e(LOG_TAG, Util.getTime());
 					BackService.dbHandler.putRequest(context.inNo, DBHandler.CALL, Util.getTime(), "in", "",
 							filename);
 					context.ringing = false;
@@ -54,14 +55,14 @@ public class PhoneListener extends PhoneStateListener {
 			}
 			break;
 		case TelephonyManager.CALL_STATE_RINGING:
-			Log.e("callState", "Call state ringing");
+			Log.e(LOG_TAG, "Call state ringing");
 			context.inNo = incomingNumber;
 			context.ringing = true;
 			context.received = false;
 			context.called = false;
 			break;
 		case TelephonyManager.CALL_STATE_OFFHOOK:
-			Log.e("callState", "Call state offhook");
+			Log.e(LOG_TAG, "Call state offhook");
 			context.received = true;
 			callIntent = new Intent(context, RecordService.class);
 			ComponentName name = context.startService(callIntent);

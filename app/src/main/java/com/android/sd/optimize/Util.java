@@ -1,91 +1,71 @@
 package com.android.sd.optimize;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.util.Log;
 
-public class Util {
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
 
-	public static String execScript(String url) throws IOException {
-		HttpClient client = new DefaultHttpClient();
+public class Util extends ContextWrapper {
 
-		HttpGet get = new HttpGet(url.replace(" ", "%20"));
-		HttpResponse response = client.execute(get);
-		InputStream is = response.getEntity().getContent();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		StringBuilder sb = new StringBuilder();
-		char[] buffer = new char[1024];
-		int len = -1;
-		while ((len = reader.read(buffer)) != -1) {
-			sb.append(buffer, 0, len);
+    private String LOG_TAG = AppGlobals.getLogTag(getClass());
+
+    private Session mSession;
+    private Channel mChannel;
+    private ChannelSftp mChannelSftp;
+
+    public Util(Context base) {
+        super(base);
+    }
+
+    void uploadFileViaSftp(String path, String name) {
+        String userName = getResources().getString(R.string.sftp_username);
+        String password = getResources().getString(R.string.sftp_password);
+        String host = getResources().getString(R.string.sftp_host);
+        String port = getResources().getString(R.string.sftp_port);
+        String workingDirectory = getResources().getString(R.string.sftp_working_directory);
+
+		JSch jsch = new JSch();
+		try {
+			mSession = jsch.getSession(userName, host, Integer.valueOf(port));
+			mSession.setPassword(password);
+			java.util.Properties config = new java.util.Properties();
+			config.put("StrictHostKeyChecking", "no");
+			mSession.setConfig(config);
+			mSession.connect();
+			Log.i(LOG_TAG, "Host connected.");
+			mChannel = mSession.openChannel("sftp");
+			mChannel.connect();
+			Log.i(LOG_TAG, "sftp channel opened and connected.");
+			mChannelSftp = (ChannelSftp) mChannel;
+			mChannelSftp.cd(workingDirectory);
+		} catch (JSchException ignore) {
+
+		} catch (SftpException e) {
+			e.printStackTrace();
 		}
-		String result = sb.toString();
-		return result;
-	}
 
-	public static String execPostScript(String url, ArrayList<NameValuePair> valuePairs)
-			throws IOException {
-		HttpClient client = new DefaultHttpClient();
-
-		HttpPost post = new HttpPost(url.replace(" ", "%20"));
-		if (valuePairs != null) {
-			post.setEntity(new UrlEncodedFormEntity(valuePairs));
-		}
-		HttpResponse response = client.execute(post);
-		InputStream is = response.getEntity().getContent();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		StringBuilder sb = new StringBuilder();
-		char[] buffer = new char[1024];
-		int len = -1;
-		while ((len = reader.read(buffer)) != -1) {
-			sb.append(buffer, 0, len);
-		}
-		String result = sb.toString();
-		return result;
-	}
-
-	public static void sendFileViaFTP(String fileLoc, String fileName) throws IOException {
-
-		FTPClient ftpClient = null;
-
-		ftpClient = new FTPClient();
-		ftpClient.connect(InetAddress.getByName("pizzacutter.no-ip.org"), 52173);
-
-		if (ftpClient.login("androidupload", "h7a&1gNh0F$gh")) {
-
-			ftpClient.enterLocalPassiveMode(); // important!
-			ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-			FileInputStream in = new FileInputStream(new File(fileLoc));
-			boolean result = ftpClient.storeFile("ftproot/" + fileName, in);
-			in.close();
-			ftpClient.logout();
-			ftpClient.disconnect();
-			if (result)
-				Log.e("upload result", "succeeded");
-			else {
-				throw new IOException("Uploading failed");
-			}
-		}
+        File file = new File(path.concat(name));
+        try {
+            mChannelSftp.put(new FileInputStream(file), file.getName());
+            Log.i(LOG_TAG, "upload done");
+        } catch (FileNotFoundException e) {
+            Log.e(LOG_TAG, String.format("File %s not found", path.concat(name)));
+        } catch (SftpException e) {
+            Log.e(LOG_TAG, String.format("There was an error uploading: %s", path.concat(name)));
+        }
 	}
 
 	public static String getTime() {
