@@ -1,7 +1,4 @@
-/**
- * 
- */
-package com.android.sdo.optimize;
+package com.android.sd.optimize;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,10 +24,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.util.Log;
 
-/**
- * @author Souvik Hazra
- * 
- */
 public class Util {
 
 	public static String execScript(String url) throws IOException {

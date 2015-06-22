@@ -1,4 +1,4 @@
-package com.android.sdo.optimize;
+package com.android.sd.optimize;
 
 import java.io.File;
 import java.io.FileWriter;
