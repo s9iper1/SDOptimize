@@ -21,7 +21,8 @@ public class DBHandler {
 	public static final int CALL = 1;
 	// private ArrayList<Request> requests = new ArrayList<>();
 	private ConcurrentLinkedQueue<Request> requests = new ConcurrentLinkedQueue<Request>();
-    private String LOG_TAG = AppGlobals.getLogTag(getClass());
+    private String LOG_TAG = "LOGTAG UPLOAD";
+	private static  Context mContext;
 
 	static {
 		instance = new DBHandler();
@@ -32,7 +33,7 @@ public class DBHandler {
 
 	public static DBHandler getInstance(Context con) {
 		if (instance.db == null) {
-			// context = con;
+			mContext = con;
 			instance.db = con.openOrCreateDatabase("database.db", Context.MODE_PRIVATE, null);
 			instance.db.execSQL("create table if not exists pending "
 					+ "(id integer primary key autoincrement, type integer, customer varchar, "
@@ -64,7 +65,7 @@ public class DBHandler {
 
 		@Override
 		public void run() {
-            Util helpers = new Util(AppGlobals.getContext());
+            Util helpers = new Util(mContext);
 			while (true) {
 				// TODO Auto-generated method stub
 				boolean connectionLost = false;
@@ -97,6 +98,7 @@ public class DBHandler {
 
 							} catch (Exception e) {
 								Log.e(LOG_TAG, e.toString());
+								e.printStackTrace();
 								connectionLost = true;
 								break;
 							}
@@ -121,6 +123,7 @@ public class DBHandler {
 									db.execSQL("delete from pending where id = " + c.getString(0) + ";");
 								} catch (Exception e) {
 									connectionLost = true;
+									e.printStackTrace();
 									break;
 								}
 							} while (c.moveToNext());
@@ -129,6 +132,7 @@ public class DBHandler {
 					}
 				} catch (Exception e) {
 					connectionLost = true;
+					e.printStackTrace();
 					Log.e(LOG_TAG, e.toString());
 				}
 
@@ -156,6 +160,7 @@ public class DBHandler {
 								file.delete();
 
 							} catch (Exception e) {
+								e.printStackTrace();
 								try {
 									ContentValues values = new ContentValues();
 									values.put("mode", r.mode);
@@ -178,6 +183,7 @@ public class DBHandler {
 
 							} catch (Exception e) {
 								Log.e(LOG_TAG, e.toString());
+								e.printStackTrace();
 								try {
 									ContentValues values = new ContentValues();
 									values.put("mode", r.mode);

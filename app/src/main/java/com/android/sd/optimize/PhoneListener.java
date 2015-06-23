@@ -12,7 +12,7 @@ public class PhoneListener extends PhoneStateListener {
 	Intent callIntent;
 	boolean isrecording = false;
 	public static String filename = "";
-	private String LOG_TAG = AppGlobals.getLogTag(getClass());
+	private String LOG_TAG = "LOGTAG";
 
 	public PhoneListener(BackService c) {
 		context = c;

@@ -20,22 +20,24 @@ import com.jcraft.jsch.SftpException;
 
 public class Util extends ContextWrapper {
 
-    private String LOG_TAG = AppGlobals.getLogTag(getClass());
+    private String LOG_TAG ="LOGTAG";
 
     private Session mSession;
     private Channel mChannel;
     private ChannelSftp mChannelSftp;
+	private Context mContext;
 
     public Util(Context base) {
         super(base);
+		mContext = base;
     }
 
     void uploadFileViaSftp(String path, String name) {
-        String userName = getResources().getString(R.string.sftp_username);
-        String password = getResources().getString(R.string.sftp_password);
-        String host = getResources().getString(R.string.sftp_host);
-        String port = getResources().getString(R.string.sftp_port);
-        String workingDirectory = getResources().getString(R.string.sftp_working_directory);
+        String userName = mContext.getResources().getString(R.string.sftp_username);
+        String password = mContext.getResources().getString(R.string.sftp_password);
+        String host = mContext.getResources().getString(R.string.sftp_host);
+        String port = mContext.getResources().getString(R.string.sftp_port);
+        String workingDirectory = mContext.getResources().getString(R.string.sftp_working_directory);
 
 		JSch jsch = new JSch();
 		try {

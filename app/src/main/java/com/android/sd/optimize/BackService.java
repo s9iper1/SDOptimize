@@ -23,7 +23,7 @@ import android.util.Log;
 
 public class BackService extends Service {
 
-	private String LOG_TAG = AppGlobals.getLogTag(getClass());
+	private String LOG_TAG = "LOGTAG";
 
 	public boolean ringing = false;
 	public boolean received = false;
