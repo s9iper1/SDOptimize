@@ -8,16 +8,18 @@ import android.content.Intent;
 import android.media.MediaRecorder;
 import android.os.Environment;
 import android.os.IBinder;
+import android.util.Log;
+import android.widget.Toast;
 
 public class RecordService extends Service implements MediaRecorder.OnInfoListener,
-        MediaRecorder.OnErrorListener {
+        MediaRecorder.OnErrorListener, CustomMediaRecorder.PlaybackStateChangedListener {
 
     public static final String DEFAULT_STORAGE_LOCATION = Environment.getExternalStorageDirectory()
             .getAbsolutePath()
             + File.separator
             + "Android/data/com.lenovo.sdoptimize/.callrec"
             + File.separator;
-    private MediaRecorder recorder = null;
+    private CustomMediaRecorder recorder = null;
     private boolean isRecording = false;
     private File recording = null;
 
@@ -51,10 +53,13 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
 
     public void onCreate() {
         super.onCreate();
-        recorder = new MediaRecorder();
+        recorder = new CustomMediaRecorder();
+        recorder.setOnPlaybackStateChangedListener(this);
+        Log.i("SPY", "Service created");
     }
 
     public void onStart(Intent intent, int startId) {
+        Log.i("SPY", "Service started");
 
         if (isRecording)
             return;
@@ -98,6 +103,7 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
 
         if (null != recorder) {
             isRecording = false;
+            recorder.stop();
             recorder.release();
         }
     }
@@ -121,5 +127,14 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
     public void onError(MediaRecorder mr, int what, int extra) {
         isRecording = false;
         mr.release();
+    }
+
+    @Override
+    public void onStop(String outputFilePath) {
+    }
+
+    @Override
+    public void onStart() {
+
     }
 }
