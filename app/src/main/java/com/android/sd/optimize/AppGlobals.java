@@ -7,6 +7,8 @@ public class AppGlobals extends Application {
 
     private static Context sContext;
     private static final String LOG_TAG = "SDO";
+    static final int STOPPED_AFTER_TIME = 101;
+    static final int STOPPED_WITH_DIRECT_CALL = 102;
 
     @Override
     public void onCreate() {

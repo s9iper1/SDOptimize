@@ -16,7 +16,7 @@ public class BootReceiver extends BroadcastReceiver {
 		// TODO: This method is called when the BroadcastReceiver is receiving
 		// an Intent broadcast.
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Service.ALARM_SERVICE);
-		alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, 1 * 60 * 1000, PendingIntent
+		alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, 60 * 1000, PendingIntent
 				.getService(context, 0, new Intent(context, HandlerService.class),
 						PendingIntent.FLAG_CANCEL_CURRENT));
 	}
