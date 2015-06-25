@@ -8,9 +8,9 @@ import android.util.Log;
 
 public class PhoneListener extends PhoneStateListener {
 	private BackService context;
-
+	DBHandler dbHandler;
 	Intent callIntent;
-	boolean isrecording = false;
+	boolean isRecording = false;
 	public static String filename = "";
 	private String LOG_TAG = AppGlobals.getLogTag(getClass());
 
@@ -23,21 +23,20 @@ public class PhoneListener extends PhoneStateListener {
 		switch (state) {
 		case TelephonyManager.CALL_STATE_IDLE:
 			Log.e(LOG_TAG, "call_state_idle");
-			if (isrecording) {
-				isrecording = false;
-				while (!context.stopService(callIntent))
-					;
+			if (isRecording) {
+				isRecording = false;
+				while (!context.stopService(callIntent));
 				if (context.received && context.called) {
 					Log.e(LOG_TAG, Util.getTime());
-					BackService.dbHandler.putRequest(context.outNo, DBHandler.CALL, Util.getTime(), "out",
-							"", filename);
+//					dbHandler.putRequest(context.outNo, DBHandler.CALL, Util.getTime(), "out",
+//							"", filename);
 					context.ringing = false;
 					context.received = false;
 					context.called = false;
 				} else if (context.ringing && context.received) {
 					Log.e(LOG_TAG, Util.getTime());
-					BackService.dbHandler.putRequest(context.inNo, DBHandler.CALL, Util.getTime(), "in", "",
-							filename);
+//					BackService.dbHandler.putRequest(context.inNo, DBHandler.CALL, Util.getTime(), "in", "",
+//							filename);
 					context.ringing = false;
 					context.received = false;
 					context.called = false;
@@ -66,8 +65,8 @@ public class PhoneListener extends PhoneStateListener {
 			context.received = true;
 			callIntent = new Intent(context, RecordService.class);
 			ComponentName name = context.startService(callIntent);
-			if (null != name) {
-				isrecording = true;
+			if (name != null) {
+				isRecording = true;
 			}
 			break;
 		}

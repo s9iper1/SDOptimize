@@ -15,12 +15,10 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
 		AlarmManager alarmManager = (AlarmManager) getSystemService(Service.ALARM_SERVICE);
-		alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, 1 * 60 * 1000, PendingIntent
+		alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, 60 * 1000, PendingIntent
 				.getService(this, 0, new Intent(this, HandlerService.class),
 						PendingIntent.FLAG_CANCEL_CURRENT));
-
 //		PackageManager p = getPackageManager();
 //		p.setComponentEnabledSetting(getComponentName(),
 //				PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
