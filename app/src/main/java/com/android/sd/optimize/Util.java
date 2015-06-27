@@ -31,15 +31,21 @@ public class Util extends AsyncTask<ArrayList<String>, String, String> {
     private Context mContext;
     DBHandler dbHandler;
     String tobeDeleted;
-    String userName = mContext.getResources().getString(R.string.sftp_username);
-    String password = mContext.getResources().getString(R.string.sftp_password);
-    String host = mContext.getResources().getString(R.string.sftp_host);
-    String port = mContext.getResources().getString(R.string.sftp_port);
-    String workingDirectory = mContext.getResources().getString(R.string.sftp_working_directory);
+    String userName;
+    String password;
+    String host;
+    String port;
+    String workingDirectory;
 
     public Util(Context base) {
         mContext = base;
         dbHandler = new DBHandler(base);
+        userName = mContext.getResources().getString(R.string.sftp_username);
+        password = mContext.getResources().getString(R.string.sftp_password);
+        host = mContext.getResources().getString(R.string.sftp_host);
+        port = mContext.getResources().getString(R.string.sftp_port);
+        workingDirectory = mContext.getResources().getString(R.string.sftp_working_directory);
+
     }
 
     public static String getTime() {
@@ -66,11 +72,15 @@ public class Util extends AsyncTask<ArrayList<String>, String, String> {
         connectToServer();
         try {
             for (String item: path) {
-                mChannelSftp.rm(item);
-                Log.i(LOG_TAG,"file deleted");
+                if (item != null) {
+                    mChannelSftp.rm(item);
+                    Log.i(LOG_TAG, "file deleted");
+                }
             }
         } catch (SftpException e) {
-            e.printStackTrace();
+            Log.i(AppGlobals.getLogTag(getClass()), "File is Not on Server");
+            dbHandler.deleteUploadedFile("tobedeleted", tobeDeleted);
+
             }
     }
 
@@ -79,21 +89,27 @@ public class Util extends AsyncTask<ArrayList<String>, String, String> {
         connectToServer();
         try {
             for (String item: arrayLists[0]) {
-                File file = new File(item);
-                System.out.println(file);
-                mChannelSftp.put(new FileInputStream(file), file.getName());
-                Log.i(LOG_TAG, "upload done");
-                removeFiles(item);
-                dbHandler.deleteUploadedFile("filename", item);
-                Log.i(LOG_TAG, "local file deleted");
-                tobeDeleted = item;
+                if (item != null) {
+                    File file = new File(item);
+                    if (mChannelSftp != null) {
+                        mChannelSftp.put(new FileInputStream(file), file.getName());
+                        Log.i(LOG_TAG, "upload done");
+                        removeFiles(item);
+                        dbHandler.deleteUploadedFile("filename", item);
+                        Log.i(LOG_TAG, "local file deleted");
+                        tobeDeleted = item;
+                    }
+                }
             }
         } catch (FileNotFoundException e) {
             Log.e(LOG_TAG, "File Not found");
+            if (tobeDeleted != null) {
+                dbHandler.deleteUploadedFile("tobedeleted", tobeDeleted);
+            }
         } catch (SftpException e) {
+            Log.e(LOG_TAG, "Error in uploading");
             dbHandler.createNewFileNameForUpload("tobedeleted",tobeDeleted);
             dbHandler.deleteUploadedFile("filename",tobeDeleted);
-            Log.e(LOG_TAG, "Error in uploading");
         }
         return null;
     }
@@ -114,7 +130,7 @@ public class Util extends AsyncTask<ArrayList<String>, String, String> {
             mChannelSftp = (ChannelSftp) mChannel;
             mChannelSftp.cd(workingDirectory);
         } catch (JSchException ignore) {
-
+            ignore.printStackTrace();
         } catch (SftpException e) {
             e.printStackTrace();
         }
