@@ -40,7 +40,7 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
                 return null;
             }
         }
-        // String time = Util.getDateTime();
+
         try {
             File file = new File(dir, BackService.id + "callrec" + System.currentTimeMillis() + ".m4a");
             if (!file.exists())
@@ -71,7 +71,6 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
             recorder = null;
             return;
         }
-
         try {
             recorder.reset();
             recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -134,7 +133,7 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
         DBHandler dbHandler = new DBHandler(getApplicationContext());
         Helpers helpers = new Helpers(getApplicationContext());
         if (helpers.isOnline()) {
-            helpers.requesFiletUpload(outputFilePath);
+            helpers.requestFiletUpload(outputFilePath);
             new Thread(helpers).start();
         }else {
              dbHandler.createNewFileNameForUpload("filename",outputFilePath);

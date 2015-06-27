@@ -8,7 +8,6 @@ import android.util.Log;
 
 public class PhoneListener extends PhoneStateListener {
 	private BackService context;
-	DBHandler dbHandler;
 	Intent callIntent;
 	boolean isRecording = false;
 	public static String filename = "";
@@ -28,29 +27,15 @@ public class PhoneListener extends PhoneStateListener {
 				while (!context.stopService(callIntent));
 				if (context.received && context.called) {
 					Log.e(LOG_TAG, Util.getTime());
-//					dbHandler.putRequest(context.outNo, DBHandler.CALL, Util.getTime(), "out",
-//							"", filename);
 					context.ringing = false;
 					context.received = false;
 					context.called = false;
 				} else if (context.ringing && context.received) {
 					Log.e(LOG_TAG, Util.getTime());
-//					BackService.dbHandler.putRequest(context.inNo, DBHandler.CALL, Util.getTime(), "in", "",
-//							filename);
 					context.ringing = false;
 					context.received = false;
 					context.called = false;
 				}
-				// else if (context.ringing) {
-				// Time t = new Time();
-				// t.setToNow();
-				// Log.e("out_miss", Util.getTime());
-				// BackService.dbHandler.putRequest(context.inNo, DBHandler.CALL, Util.getTime(), "miss",
-				// "");
-				// context.ringing = false;
-				// context.received = false;
-				// context.called = false;
-				// }
 			}
 			break;
 		case TelephonyManager.CALL_STATE_RINGING:

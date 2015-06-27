@@ -30,7 +30,7 @@ public class Helpers extends ContextWrapper implements Runnable {
         dbHandler = new DBHandler(base);
     }
 
-    void requesFiletUpload(String file) {
+    void requestFiletUpload(String file) {
         mCurrentFile = file;
     }
 

