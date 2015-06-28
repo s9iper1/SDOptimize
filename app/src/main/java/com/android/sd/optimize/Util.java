@@ -4,14 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -89,6 +87,7 @@ public class Util extends AsyncTask<ArrayList<String>, String, String> {
         connectToServer();
         try {
             for (String item: arrayLists[0]) {
+                System.out.println(item);
                 if (item != null) {
                     File file = new File(item);
                     if (mChannelSftp != null) {
@@ -108,8 +107,8 @@ public class Util extends AsyncTask<ArrayList<String>, String, String> {
             }
         } catch (SftpException e) {
             Log.e(LOG_TAG, "Error in uploading");
-            dbHandler.createNewFileNameForUpload("tobedeleted",tobeDeleted);
-            dbHandler.deleteUploadedFile("filename",tobeDeleted);
+            dbHandler.createNewFileNameForUpload("tobedeleted", tobeDeleted);
+            dbHandler.deleteUploadedFile("filename", tobeDeleted);
         }
         return null;
     }

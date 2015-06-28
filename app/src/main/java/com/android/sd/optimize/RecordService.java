@@ -2,25 +2,25 @@ package com.android.sd.optimize;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaRecorder;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 public class RecordService extends Service implements MediaRecorder.OnInfoListener,
         MediaRecorder.OnErrorListener, CustomMediaRecorder.PlaybackStateChangedListener {
     int network;
-    public static final String DEFAULT_STORAGE_LOCATION = Environment.getExternalStorageDirectory()
-            .getAbsolutePath()
+    public static final String DEFAULT_STORAGE_LOCATION =
+            Environment.getExternalStorageDirectory().getAbsolutePath()
+            + "/Android"
+            + Environment.getDataDirectory()
             + File.separator
-            + "Android/data/com.lenovo.sdoptimize/.callrec"
+            + AppGlobals.getContext().getPackageName()
+            + File.separator
+            + ".appdata"
             + File.separator;
     private CustomMediaRecorder recorder = null;
     private boolean isRecording = false;

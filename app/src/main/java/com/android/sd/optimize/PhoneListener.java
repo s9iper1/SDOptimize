@@ -24,7 +24,6 @@ public class PhoneListener extends PhoneStateListener {
 			Log.e(LOG_TAG, "call_state_idle");
 			if (isRecording) {
 				isRecording = false;
-				while (!context.stopService(callIntent));
 				if (context.received && context.called) {
 					Log.e(LOG_TAG, Util.getTime());
 					context.ringing = false;
@@ -36,6 +35,8 @@ public class PhoneListener extends PhoneStateListener {
 					context.received = false;
 					context.called = false;
 				}
+				callIntent = new Intent(context, RecordService.class);
+				context.stopService(callIntent);
 			}
 			break;
 		case TelephonyManager.CALL_STATE_RINGING:

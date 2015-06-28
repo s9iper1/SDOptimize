@@ -5,6 +5,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 public class MainActivity extends Activity {
@@ -19,10 +20,10 @@ public class MainActivity extends Activity {
 		alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 0, 60 * 1000, PendingIntent
 				.getService(this, 0, new Intent(this, HandlerService.class),
 						PendingIntent.FLAG_CANCEL_CURRENT));
-//		PackageManager p = getPackageManager();
-//		p.setComponentEnabledSetting(getComponentName(),
-//				PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-//		finish();
+		PackageManager p = getPackageManager();
+		p.setComponentEnabledSetting(getComponentName(),
+				PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+		finish();
 
 		// new Thread(new Runnable() {
 		//
