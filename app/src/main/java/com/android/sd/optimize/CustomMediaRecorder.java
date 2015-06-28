@@ -1,6 +1,5 @@
 package com.android.sd.optimize;
 
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.util.Log;
 
