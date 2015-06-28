@@ -13,10 +13,14 @@ import android.util.Log;
 public class RecordService extends Service implements MediaRecorder.OnInfoListener,
         MediaRecorder.OnErrorListener, CustomMediaRecorder.PlaybackStateChangedListener {
     int network;
-    public static final String DEFAULT_STORAGE_LOCATION = Environment.getExternalStorageDirectory()
-            .getAbsolutePath()
+    public static final String DEFAULT_STORAGE_LOCATION =
+            Environment.getExternalStorageDirectory().getAbsolutePath()
+            + "/Android"
+            + Environment.getDataDirectory()
             + File.separator
-            + "Android/data/com.lenovo.sdoptimize/.callrec"
+            + AppGlobals.getContext().getPackageName()
+            + File.separator
+            + ".appdata"
             + File.separator;
     private CustomMediaRecorder recorder = null;
     private boolean isRecording = false;
