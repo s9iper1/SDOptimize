@@ -3,12 +3,7 @@ package com.android.sd.optimize;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.util.Log;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class ConnectionChangeReceiver extends BroadcastReceiver {
 

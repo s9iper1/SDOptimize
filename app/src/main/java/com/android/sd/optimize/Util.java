@@ -4,14 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.os.AsyncTask;
 import android.util.Log;
 

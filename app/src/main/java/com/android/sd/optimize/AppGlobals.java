@@ -1,7 +1,6 @@
 package com.android.sd.optimize;
 
 import android.app.Application;
-import android.content.Context;
 
 public class AppGlobals extends Application {
 
@@ -10,7 +9,6 @@ public class AppGlobals extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Context sContext = getApplicationContext();
     }
 
     static String getLogTag(Class aClass) {

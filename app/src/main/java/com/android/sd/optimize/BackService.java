@@ -8,8 +8,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,8 +23,6 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class BackService extends Service {
 
