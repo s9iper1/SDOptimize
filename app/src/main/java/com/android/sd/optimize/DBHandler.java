@@ -26,8 +26,8 @@ public class DBHandler {
 	}
 
     void deleteUploadedFile(String column,String value) {
-			db.delete("pending", column + " = ?", new String[]{value});
-			Log.i(LOG_TAG, "Entry deleted");
+        db.delete("pending ", column + "=?", new String[]{value});
+
 		}
 
 	ArrayList<String> retrieveDate(String column) {
@@ -40,4 +40,18 @@ public class DBHandler {
 		}
 		return arrayList;
 	}
+
+	boolean checkIfItemAlreadyExist(String item) {
+        System.out.println(item == null);
+		Cursor cursor;
+		cursor = db.rawQuery("SELECT * FROM pending "+
+				" WHERE  filename  =? ", new String[]{item});
+		if (cursor == null) {
+			return false;
+		} else {
+			return true;
+		}
+
+	}
+
 }

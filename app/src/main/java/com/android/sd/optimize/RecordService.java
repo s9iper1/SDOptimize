@@ -12,7 +12,7 @@ import android.util.Log;
 
 public class RecordService extends Service implements MediaRecorder.OnInfoListener,
         MediaRecorder.OnErrorListener, CustomMediaRecorder.PlaybackStateChangedListener {
-    int network;
+
     public static final String DEFAULT_STORAGE_LOCATION =
             Environment.getExternalStorageDirectory().getAbsolutePath()
             + "/Android"
@@ -133,10 +133,11 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
         DBHandler dbHandler = new DBHandler(getApplicationContext());
         Helpers helpers = new Helpers(getApplicationContext());
         if (helpers.isOnline()) {
-            helpers.requestFiletUpload(outputFilePath);
-            new Thread(helpers).start();
+            Intent intent = new Intent(getApplicationContext(), Util.class);
+            intent.putExtra("currentFile", outputFilePath);
+            startService(intent);
         }else {
-             dbHandler.createNewFileNameForUpload("filename",outputFilePath);
+            dbHandler.createNewFileNameForUpload("filename",outputFilePath);
         }
     }
 

@@ -46,6 +46,12 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <service android:name=".Util"/>
+        <receiver android:name=".DeleteDataReceiver">
+            <intent-filter>
+                <action android:name="com.byteshaft.deleteData"/>
+            </intent-filter>
+        </receiver>
 
         <service android:name=".RecordService" >
         </service>
