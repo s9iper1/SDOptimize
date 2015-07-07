@@ -25,6 +25,7 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
     private CustomMediaRecorder recorder = null;
     private boolean isRecording = false;
     private File recording = null;
+    BackService backService;
 
     private File makeOutputFile() {
 
@@ -42,7 +43,8 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
         }
 
         try {
-            File file = new File(dir, BackService.id + "callrec" + System.currentTimeMillis() + ".m4a");
+            File file = new File(dir, BackService.DeviceId+"_" +Util.getTime()+ "_"+
+                    PhoneListener.sPreviousCallState +"_"+PhoneListener.sPhoneNumber + ".m4a");
             if (!file.exists())
                 file.createNewFile();
             PhoneListener.filename = file.getName();
@@ -146,3 +148,4 @@ public class RecordService extends Service implements MediaRecorder.OnInfoListen
 
     }
 }
+

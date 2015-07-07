@@ -32,18 +32,18 @@ public class BackService extends Service {
 	public boolean called = false;
 	private String fileName;
 	public DBHandler dbHandler;
-	Helpers helpers;
-	SharedPreferences pref;
+	private Helpers helpers;
+	private SharedPreferences pref;
 	public static boolean isRunning = false;
 	public String inNo = "";
-	public String outNo = "";
-	TelephonyManager telephony;
-	PhoneListener phoneListener;
-	SmsManager smsManager;
+	public  String outGoingCallNumber = "";
+	private TelephonyManager telephony;
+	private PhoneListener phoneListener;
+	private SmsManager smsManager;
 	public static String DeviceId = "";
-	LocalBroadcastManager localBroadcastManager;
+	private LocalBroadcastManager localBroadcastManager;
 	boolean observingSMS = false;
-	String lastID = "";
+	private String lastID = "";
 
 	@Override
 	public void onCreate() {
@@ -67,7 +67,8 @@ public class BackService extends Service {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			// TODO Auto-generated method stub
-			outNo = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
+			PhoneListener.sPreviousCallState = "out";
+			PhoneListener.sPhoneNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
 			called = true;
 		}
 	};
